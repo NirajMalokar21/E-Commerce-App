@@ -33,7 +33,7 @@ app.use('/images', express.static('upload/images'))
 app.post("/upload", upload.single('product'), (req,res)=>{
     res.json({
         success: 1,
-        image_url: `https://e-commerce-app-3k8g.onrender.com/images/${req.file.filename}`
+        image_url: `${process.env.BASE_URL}/images/${req.file.filename}`
     })
 })
 
@@ -81,6 +81,11 @@ const Product = mongoose.model("Product", {
     }
 })
 
+Product.updateMany(
+    { image: { $regex: '^http://localhost:4000' } }, // Find all documents where the image field starts with 'http://localhost:4000'
+    [{ $set: { image: { $replaceOne: { input: '$image', find: 'http://localhost:4000', replacement: process.env.BASE_URL } } } }] // Update the image field by replacing 'http://localhost:4000' with 'https://e-commerce-app-3k8g.onrender.com'
+  )
+
 app.post('/addproduct', async (req,res) => {
     let products = await Product.find({});
     let id;
@@ -96,7 +101,7 @@ app.post('/addproduct', async (req,res) => {
         id: id,
         name: req.body.name,
         tags: req.body.tag,
-        image: req.body.image,
+        image:`${process.env.BASE_URL}/images/${req.body.image}`,
         category: req.body.category,
         new_price: req.body.new_price,
         old_price: req.body.old_price,
