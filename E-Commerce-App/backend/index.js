@@ -81,11 +81,6 @@ const Product = mongoose.model("Product", {
     }
 })
 
-Product.updateMany(
-    { image: { $regex: '^http://localhost:4000' } }, // Find all documents where the image field starts with 'http://localhost:4000'
-    [{ $set: { image: { $replaceOne: { input: '$image', find: 'http://localhost:4000', replacement: process.env.BASE_URL } } } }] // Update the image field by replacing 'http://localhost:4000' with 'https://e-commerce-app-3k8g.onrender.com'
-  )
-
 app.post('/addproduct', async (req,res) => {
     let products = await Product.find({});
     let id;
